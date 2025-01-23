@@ -5,86 +5,93 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF_finalhw"
         mc:Ignorable="d"
-        Title="Resume database" Height="450" Width="800"  MinWidth="500" MinHeight="400" Background="#F7E3AF">
+          Title="Resume Database" Height="400" Width="600" MinWidth="600" MinHeight="400" Background="#1E1E2E">
 
     <Window.Resources>
         <local:ViewModel x:Key="ViewModel"/>
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#44475A"/>
+            <Setter Property="Foreground" Value="#F8F8F2"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="1,1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="Height" Value="30"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                    <Setter Property="Background" Value="#282A36"/>
+                    <Setter Property="Foreground" Value="#888888"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
     </Window.Resources>
     
-    
-    <Window.DataContext>
-        <local:ViewModel/>
-    </Window.DataContext>
-
-    <Grid>
+    <Grid DataContext="{StaticResource ViewModel}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-
-            <RowDefinition Height="*" />
-            
-            <RowDefinition Height="*" />
-           
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
- 
         <DockPanel Grid.Row="0" Margin="10">
-            <Button Content="Просмотр резюме" Command="{Binding OpenCommand}" Margin="5"/>
-            <Button Content="Открыть" Command="{Binding OpenCommand}" Margin="5"/>
-            <Button Content="Сохранить" Command="{Binding SaveCommand}" Margin="5"/>
-            <Button Content="Добавить" Command="{Binding AddCommand}" Margin="5"/>
+            <Button Content="Просмотр резюме" Command="{Binding ViewCommand}" Style="{StaticResource ButtonStyle}"/>
+            <Button Content="Открыть" Command="{Binding OpenCommand}" Style="{StaticResource ButtonStyle}"/>
+            <Button Content="Сохранить" Command="{Binding SaveCommand}" Style="{StaticResource ButtonStyle}"/>
+            <Button Content="Добавить" Command="{Binding AddCommand}" Style="{StaticResource ButtonStyle}"/>
         </DockPanel>
 
-      
         <Grid Grid.Row="1" Margin="10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="5*"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Margin="10">
-                <TextBlock Text="Имя:" />
-                <TextBox Text="{Binding CurrentName}" Width="200" />
-                <TextBlock Text="Возраст:" />
-                <TextBox Text="{Binding CurrentAge}" Width="200" />
-                <TextBlock Text="Адрес:" />
-                <TextBox Text="{Binding CurrentAddress}" Width="200"/>
-                <TextBlock Text="Семейное положение:"/>
-                <TextBox Text="{Binding CurrentStatus}" Width="200" />
-                <TextBlock Text="Email:"/>
-                <TextBox Text="{Binding CurrentEmail}" Width="200"/>
+                <TextBlock Text="Имя:" Foreground="#8BE9FD" FontSize="14" />
+                <TextBox Text="{Binding CurrentName}" Background="#282A36" Foreground="#F8F8F2" />
+                <TextBlock Text="Возраст:" Foreground="#8BE9FD" FontSize="14" />
+                <TextBox Text="{Binding CurrentAge}" Background="#282A36" Foreground="#F8F8F2"/>
+                <TextBlock Text="Адрес:" Foreground="#8BE9FD" FontSize="14" />
+                <TextBox Text="{Binding CurrentAddress}" Background="#282A36" Foreground="#F8F8F2"/>
+                <TextBlock Text="Семейное положение:" Foreground="#8BE9FD" FontSize="14"/>
+                <TextBox Text="{Binding CurrentStatus}" Background="#282A36" Foreground="#F8F8F2"/>
+                <TextBlock Text="Email:" Foreground="#8BE9FD" FontSize="14" />
+                <TextBox Text="{Binding CurrentEmail}" Background="#282A36" Foreground="#F8F8F2"/>
             </StackPanel>
 
-            <WrapPanel Grid.Column="1" Margin="10">
-                <TextBlock Text="Навыки:" />
-                <CheckBox Content="English" IsChecked="{Binding CurrentSkills}" Margin="5"/>
-                <CheckBox Content="JavaScript" IsChecked="{Binding CurrentSkills}" Margin="5"/>
-                <CheckBox Content="HTML+CSS" IsChecked="{Binding CurrentSkills}" Margin="5"/>
-                <CheckBox Content="React" IsChecked="{Binding CurrentSkills}" Margin="5"/>
-                <CheckBox Content="Angular" IsChecked="{Binding CurrentSkills}" Margin="5"/>
-            </WrapPanel>
+            <StackPanel Grid.Column="1" Margin="10">
+                <TextBlock Text="Навыки:" Foreground="#BD93F9" FontSize="16" />
+                <ItemsControl ItemsSource="{Binding SkillsList}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding Name}" 
+                                      IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                                      Margin="5" 
+                                      Foreground="#F8F8F2"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ListBox ItemsSource="{Binding RecordsList}" 
+                         SelectedIndex="{Binding Index_selected_listbox, Mode=TwoWay}" 
+                         IsSynchronizedWithCurrentItem="True" 
+                         HorizontalContentAlignment="Stretch">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#44475A" BorderThickness="1" Margin="5" CornerRadius="5" Background="#282A36">
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="#F8F8F2"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
         </Grid>
-
-        <ScrollViewer Grid.Row="2" Margin="10" VerticalScrollBarVisibility="Auto">
-            <ListBox ItemsSource="{Binding RecordsList}" IsSynchronizedWithCurrentItem="True" SelectedIndex="{Binding Index_selected_listbox, Mode=TwoWay}"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Border BorderBrush="Bisque" BorderThickness="1" Margin="10">
-                            <StackPanel Margin="10">
-                                <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-            </ListBox>
-        </ScrollViewer>
-
     </Grid>
+
 </Window>

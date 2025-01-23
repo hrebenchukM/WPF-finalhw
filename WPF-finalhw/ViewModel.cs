@@ -13,10 +13,20 @@ namespace WPF_finalhw
     class ViewModel : INotifyPropertyChanged
     {
         public ObservableCollection<RecordViewModel> RecordsList { get; set; }
+        public ObservableCollection<SkillViewModel> SkillsList { get; set; }
 
         public ViewModel()
         {
             RecordsList = new ObservableCollection<RecordViewModel>();
+
+            SkillsList = new ObservableCollection<SkillViewModel>
+            {
+            new SkillViewModel(new Skill("English")),
+            new SkillViewModel(new Skill("JavaScript")),
+            new SkillViewModel(new Skill("HTML+CSS")),
+            new SkillViewModel(new Skill("React")),
+            new SkillViewModel(new Skill("Angular"))
+            };
         }
 
 
@@ -82,18 +92,6 @@ namespace WPF_finalhw
         }
 
 
-        private List<string> currentSkills = new List<string>();
-        public List<string> CurrentSkills
-        {
-            get { return currentSkills; }
-            set
-            {
-                currentSkills = value;
-                RaisePropertyChanged(nameof(CurrentSkills));
-            }
-        }
-
-      
 
 
 
@@ -107,16 +105,7 @@ namespace WPF_finalhw
                 index_selected_listbox = value;
 
                 RaisePropertyChanged(nameof(Index_selected_listbox));
-                if (index_selected_listbox >= 0 && index_selected_listbox < RecordsList.Count)
-                {
-                    RecordViewModel selectedRecord = RecordsList[index_selected_listbox];
-                    CurrentName = selectedRecord.Name;
-                    CurrentAge = selectedRecord.Age;
-                    CurrentAddress = selectedRecord.Address;
-                    CurrentStatus = selectedRecord.Status;
-                    CurrentEmail = selectedRecord.Email;
-                    CurrentSkills = new List<string>(selectedRecord.Skills);
-                }
+            
             }
         }
 
@@ -140,25 +129,56 @@ namespace WPF_finalhw
         }
         private void Add(object o)
         {
-            Record newRecord = new Record();
-            newRecord.Name = CurrentName;
-            newRecord.Age = CurrentAge;
-            newRecord.Address = CurrentAddress;
-            newRecord.Status = CurrentStatus;
-            newRecord.Email = CurrentEmail;
-            newRecord.Skills = new List<string> (CurrentSkills);
-            RecordsList.Add(new RecordViewModel(newRecord));
+            var selectedSkills = SkillsList
+            .Where(skill => skill.IsSelected)
+            .Select(skill => new Skill(skill.Name)) 
+            .ToList();
+
+            RecordsList.Add(new RecordViewModel(new Record(CurrentName, CurrentAge, CurrentAddress, CurrentStatus, CurrentEmail, selectedSkills)));
         }
 
         private bool CanAdd(object o)
         {
-            //if (CurrentName == "" || CurrentAge == 0 || CurrentAddress == "" || CurrentStatus == "" || CurrentEmail == "" )
-            //    return false;
+            if (CurrentName == "" || CurrentAge < 18 || CurrentAddress == "" || CurrentStatus == "" || CurrentEmail == "")
+                return false;
             return true;
         }
 
 
 
+
+
+
+
+
+        private DelegateCommand _ViewCommand;
+        public ICommand ViewCommand
+        {
+            get
+            {
+                if (_ViewCommand == null)
+                {
+                    _ViewCommand = new DelegateCommand(View, CanView);
+                }
+                return _ViewCommand;
+            }
+        }
+        private void View(object o)
+        {
+
+            RecordViewModel selectedRecord = RecordsList[index_selected_listbox];
+            ResumeView resumeV = new ResumeView
+            {
+                DataContext = selectedRecord 
+            };
+            resumeV.ShowDialog();
+
+        }
+
+        private bool CanView(object o)
+        {
+            return Index_selected_listbox >= 0 && Index_selected_listbox < RecordsList.Count;
+        }
 
 
 
@@ -199,9 +219,14 @@ namespace WPF_finalhw
                 var lines = new List<string>();
                 foreach (RecordViewModel recordViewModel in RecordsList)
                 {
+                    string skills = string.Join(",", recordViewModel.Skills.Select(s => s.Name)); 
 
-                    lines.Add(recordViewModel.Name + ";" + recordViewModel.Age + ";" + recordViewModel.Address + ";" + recordViewModel.Status + ";" + recordViewModel.Email + ";" +
-                    string.Join(",", recordViewModel.Skills));
+                    lines.Add(recordViewModel.Name + ";"
+                        + recordViewModel.Age + ";"
+                        + recordViewModel.Address + ";"
+                        + recordViewModel.Status + ";"
+                        + recordViewModel.Email + ";"
+                        + skills);
                 }
 
                 File.WriteAllLines(saveFileDialog1.FileName, lines);
@@ -244,18 +269,17 @@ namespace WPF_finalhw
                 foreach (var line in lines)
                 {
                     var parts = line.Split(';');
-                    if (parts.Length == 5)
+                    if (parts.Length == 6)
                     {
                         int age;
                         if (int.TryParse(parts[1], out age)) 
                         {
-                            RecordsList.Add(new RecordViewModel(
-                             new Record(parts[0], 
-                             age,
-                             parts[2], 
-                             parts[3], 
-                             parts[4],
-                             new List<string>(parts[5].Split(',')))));
+
+                            List<Skill> skills = parts[5].Split(',').Select(s => new Skill(s)).ToList();
+
+                            Record newRecord = new Record(parts[0], age, parts[2], parts[3], parts[4], skills);
+                            RecordsList.Add(new RecordViewModel(newRecord));
+
                         }
                     }
 

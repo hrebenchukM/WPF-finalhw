@@ -13,7 +13,8 @@ namespace WPF_finalhw
         private string status;
         private string email;
 
-        private List<string> skills = new List<string>();
+
+        public List<Skill> Skills { get; set; }
 
         public string Name
         {
@@ -78,27 +79,16 @@ namespace WPF_finalhw
         }
 
 
-        public List<string> Skills
-        {
-            get
-            {
-                return skills;
-            }
-            set
-            {
-                skills = value;
+      
 
-            }
-        }
-
-        public Record(string n, int ag, string ad, string s, string e, List<string> skills)
+        public Record(string n, int ag, string ad, string s, string e, List<Skill> skills)
         {
             Name = n;
             Age = ag;
             Address = ad;
             Status = s;
             Email = e;
-            Skills = new List<string>(skills);
+            Skills = new List<Skill>(skills);
         }
 
         public Record()
@@ -108,7 +98,7 @@ namespace WPF_finalhw
             Address = "";
             Status = "";
             Email = "";
-            Skills = new List<string>();
+            Skills = new List<Skill>();
         }
     }
 }
