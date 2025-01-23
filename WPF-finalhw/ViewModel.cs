@@ -251,7 +251,8 @@ namespace WPF_finalhw
                         {
                             RecordsList.Add(new RecordViewModel(
                              new Record(parts[0], 
-                             age, parts[2], 
+                             age,
+                             parts[2], 
                              parts[3], 
                              parts[4],
                              new List<string>(parts[5].Split(',')))));
