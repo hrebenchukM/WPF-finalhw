@@ -167,10 +167,7 @@ namespace WPF_finalhw
         {
 
             RecordViewModel selectedRecord = RecordsList[index_selected_listbox];
-            ResumeView resumeV = new ResumeView
-            {
-                DataContext = selectedRecord 
-            };
+            ResumeView resumeV = new ResumeView{DataContext = selectedRecord};
             resumeV.ShowDialog();
 
         }
